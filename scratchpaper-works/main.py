@@ -1,7 +1,7 @@
 CURRENT_DIRECTORY = None
 
-from emnist import list_datasets, extract_training_samples
-import sys, os
+from emnist import extract_training_samples
+import os
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
