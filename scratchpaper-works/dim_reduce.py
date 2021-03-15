@@ -50,7 +50,7 @@ def SplitbyClasses(classSize=100, classes=None):
     return RowDataMtx, Labels
 
 
-def SymbolesToLabels(symbol:str, SymToLabel=dict()):
+def SymbolsToLabels(symbol:str, SymToLabel=dict()):
     assert len(symbol) == 1
     if len(SymToLabel) != 0:
         return SymToLabel[symbol]
@@ -101,7 +101,6 @@ class PCADimReduce:
         return this.PcaModel.explained_variance_ratio_
 
 
-
 def main():
     def LDADemonstration():
         LdaInstance = LDADimReduce(); print(f"Geting the LDA Model... ")
@@ -134,7 +133,7 @@ def main():
                                    X=PCAEmbeddings,
                                    y=TrainLabels)  # Use the PCA embeddings to train LDA
 
-        classes = [SymbolesToLabels(Char) for Char in "0o2z"]
+        classes = [SymbolsToLabels(Char) for Char in "0o2z"]
         TestData, TestLabels = SplitbyClasses(classSize=1000, classes=classes)
         # Ge the LDA embeddings of the PCA embeddings.
         print("Represent using PCA modes and then on LDA basis... ")
