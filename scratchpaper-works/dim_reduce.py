@@ -61,7 +61,6 @@ def SymbolesToLabels(symbol:str, SymToLabel=dict()):
     return SymToLabel[symbol]
 
 
-
 class LDADimReduce:
 
     def __init__(this, X = None, y= None, n_components=60, classSize=1000, classes=None):
@@ -83,7 +82,7 @@ class LDADimReduce:
 class PCADimReduce:
 
     def __init__(this,X=None, y=None, n_components=0.9, classSize=1000, classes=None):
-        if (X is None) or (Y is None):
+        if (X is None) or (y is None):
             X, y= SplitbyClasses(classSize=classSize, classes=classes)
         this.PcaModel = PCA(n_components=n_components, svd_solver="full")
         this.PcaModel.fit(X, y)
@@ -154,7 +153,6 @@ def main():
         show()
 
     PCAPlusLDADemonstration()
-
 
 
 if __name__ == "__main__":
