@@ -8,7 +8,6 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 CURRENT_DIRECTORY = None
 
-
 ## name space stuff:
 shuffle = np.random.shuffle
 reshape = np.reshape
@@ -18,19 +17,43 @@ show = plt.show
 concatenate = np.concatenate
 mean = np.mean
 
+
+class LDADimReduce:
+
+    def __init__(this, dim=60, classSize=1000, classes=None):
+        X, y = PrepareDataForLDA(classSize=classSize, classes=classes)
+        Template = LDA(n_components=dim)
+        lda = Template.fit(X, y)
+        this.LdaModel = lda
+        this.Dim = dim
+        this.ClassSize = classSize
+
+    def getEmbeddings(this, toTransform):
+        lda = this.LdaModel
+        print("fitting lda")
+        Embeddings = lda.transform(toTransform)  # Rows are embeddings in all 60 dimensions
+        return Embeddings
+
+
 def main():
-    X, y = PrepareData(classSize=1000)
-    lda = LDA(n_components=60)
-    print("fitting lda")
-    Subspace = lda.fit(X, y).transform(X)  # Rows are embeddings in all 60 dimensions
-    print(f"Shape of the subspace: {Subspace.shape}")
-    print(Subspace)
+    LdaInstance = LDADimReduce()
+    # Make an instance
+    Data, Labels = PrepareDataForLDA(classSize=100, classes=[26, 27, 28])
+    # new data that never seemed before.
+    Embeddings = LdaInstance.getEmbeddings(Data)
     colors = ['navy', 'turquoise', 'darkorange']
-    for color, II in zip(colors, [0, 1, 9]):
-        scatter(Subspace[y == II, 0], Subspace[y == II, 1], alpha=.8, color=color)
+    SeparatingModes = [0, 1]
+    for color, II in zip(colors, [26, 27, 28]):
+        scatter(
+            Embeddings[Labels == II, SeparatingModes[0]],
+            Embeddings[Labels == II, SeparatingModes[1]],
+            alpha=.8,
+            color=color
+        )
     show()
 
-def PrepareData(classSize = 10):
+
+def PrepareDataForLDA(classSize=100, classes=None):
     """
 
     :param classSize:
@@ -38,7 +61,8 @@ def PrepareData(classSize = 10):
     """
     images, labels = extract_training_samples("byclass")
     Idx = []
-    for Label in range(0, 62):
+    classes = list(range(0, 62)) if classes is  None else classes
+    for Label in classes:
         ClsIdx = np.argwhere(labels == Label)
         ClsIdx = reshape(ClsIdx, ClsIdx.shape[0])
         ClsIdx = ClsIdx[: min(ClsIdx.shape[0], classSize)]
