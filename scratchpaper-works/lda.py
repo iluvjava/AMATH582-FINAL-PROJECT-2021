@@ -16,7 +16,9 @@ scatter = plt.scatter
 show = plt.show
 concatenate = np.concatenate
 mean = np.mean
-
+figure = plt.figure
+title = plt.title
+legend = plt.legend
 
 class LDADimReduce:
 
@@ -37,8 +39,8 @@ class LDADimReduce:
 
 def main():
     LdaInstance = LDADimReduce()
-    # Make an instance
-    Data, Labels = PrepareDataForLDA(classSize=100, classes=[26, 27, 28])
+
+    Data, Labels = PrepareDataForLDA(classSize=1000, classes=[26, 27, 28])
     # new data that never seemed before.
     Embeddings = LdaInstance.getEmbeddings(Data)
     colors = ['navy', 'turquoise', 'darkorange']
@@ -50,6 +52,7 @@ def main():
             alpha=.8,
             color=color
         )
+    legend(["a", "b", "c"])
     show()
 
 
