@@ -25,8 +25,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 
-
-
 ## name space stuff:
 shuffle = np.random.shuffle
 reshape = np.reshape
@@ -39,6 +37,7 @@ figure = plt.figure
 title = plt.title
 legend = plt.legend
 matshow = plt.matshow
+array_equal=np.array_equal
 
 ## Meta settings
 CURRENT_DIRECTORY = None
@@ -46,7 +45,7 @@ matplotlib.rcParams['figure.figsize'] = (20, 20)
 matplotlib.rcParams["figure.dpi"] = 220
 
 
-def SplitbyClasses(classSize=100, classes=None):
+def SplitbyClasses(classSize=100, classes=None, shuffle_data=False):
     """
         Given the labels you want and the maximal size for each of the label, this function
         will return the splited data set for each.
@@ -61,6 +60,7 @@ def SplitbyClasses(classSize=100, classes=None):
     for Label in classes:
         ClsIdx = np.argwhere(labels == Label)
         ClsIdx = reshape(ClsIdx, ClsIdx.shape[0])
+        if shuffle_data: clsIdx = shuffle(ClsIdx)
         ClsIdx = ClsIdx[: min(ClsIdx.shape[0], classSize)]
         for Idex in ClsIdx:
             Idx.append(Idex)
@@ -86,7 +86,14 @@ def SymbolsToLabels(symbol:str, SymToLabel=dict()):
 
 class LDADimReduce:
 
-    def __init__(this, X = None, y= None, n_components=None, classSize=1000, classes=None):
+    def __init__(this,
+                 X = None,
+                 y= None,
+                 n_components=None,
+                 classSize=1000,
+                 classes=None,
+                 shuffle=False
+                 ):
         """
             Creates an instance of the LDA dim_reduce on the EMNIST data set.
         :param X: (Optional) The data that we want to train the LDA on.
@@ -99,7 +106,7 @@ class LDADimReduce:
             List of labels we want to sample from the EMNIST data set.
         """
         if (X is None) or (y is None):
-            X, y = SplitbyClasses(classSize=classSize, classes=classes)
+            X, y = SplitbyClasses(classSize=classSize, classes=classes, shuffle_data=shuffle)
         Template = LDA(n_components=n_components)
         lda = Template.fit(X, y)
         this.LdaModel = lda
@@ -123,11 +130,19 @@ class LDADimReduce:
         else:
             return lda.transform(this.Data)
 
+
 class PCADimReduce:
 
-    def __init__(this,X=None, y=None, n_components=0.9, classSize=1000, classes=None):
+    def __init__(this,
+                 X=None,
+                 y=None,
+                 n_components=0.9,
+                 classSize=1000,
+                 classes=None,
+                 shuffle=False
+                 ):
         """
-
+            Create an instance for the PCA dimn reduce embedding.
         :param X:
         :param y:
         :param n_components:
@@ -135,8 +150,7 @@ class PCADimReduce:
         :param classes:
         """
         if (X is None) or (y is None):
-
-            X, y= SplitbyClasses(classSize=classSize, classes=classes)
+            X, y= SplitbyClasses(classSize=classSize, classes=classes, shuffle_data=shuffle)
         this.PcaModel = PCA(n_components=n_components, svd_solver="full")
         this.PcaModel.fit(X, y)
         this.classSize = 1000
@@ -154,8 +168,29 @@ class PCADimReduce:
         return this.PcaModel.explained_variance_ratio_
 
 class DimReduceHybrid:
-    def __int__(this):
-        pass
+    """
+    PCA + LDA embeddings.
+    """
+    def __init__(this, X=None, y=None, classes=None, classSize=1000, pca_components=0.9, shuffle=False):
+        if (X is None) or (y is None):
+            X, y = SplitbyClasses(classSize=classSize, classes=classes, shuffle_data=False)
+
+        this.PCAModel = PCA(n_components=pca_components)
+        this.PCAModel.fit(X, y)
+        PCAEmbeddings = this.PCAModel.transform(X)
+        this.LDAModel = LDA()
+        this.LDAModel.fit(PCAEmbeddings, y)
+
+        this.classSize = 1000
+        this.pca_components=0.9
+        this.Data = X
+        this.Labels = y
+
+    def getEmbeddings(this, X=None):
+        X = this.Data if X is None else X
+        PCAEmbeddings = this.PCAModel.transform(X)
+        LDAEmbeddings = this.LDAModel.transform(PCAEmbeddings)
+        return LDAEmbeddings
 
 
 
@@ -231,7 +266,20 @@ def main():
         disp.ax_.set_title("Training Set SVM")
         show()
 
-    SVMTesting()
+    def SplitByClassesShuffleTesting():
+        classes = list(range(3))
+        X1, _ = SplitbyClasses(shuffle_data=True, classSize=10, classes=classes)
+        X2, _ = SplitbyClasses(shuffle_data=True, classSize=10, classes=classes)
+        print("Making sure the the suffle data are not the same")
+        assert not array_equal(X1, X2)
+        print("Yes, if you see this ten it's assserted and they are not equal. ")
+        X1, _ = SplitbyClasses(shuffle_data=False, classSize=10, classes=classes)
+        X2, _ = SplitbyClasses(shuffle_data=False, classSize=10, classes=classes)
+        print("If not shuffled, they should come out and be the same")
+        assert array_equal(X1, X2)
+        print("Yes, if you see this then the condition has been asserted. ")
+
+    SplitByClassesShuffleTesting()
 
 
 if __name__ == "__main__":
