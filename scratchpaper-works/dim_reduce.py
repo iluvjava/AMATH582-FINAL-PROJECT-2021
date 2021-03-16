@@ -1,16 +1,6 @@
-"""
-------------------------------------------------------------------------------------------------------------------------
-Reference Materials Used:
-------------------------------------------------------------------------------------------------------------------------
-SK: plotting the confusion chart
-https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
-SK: LDA
-https://scikit-learn.org/0.16/modules/generated/sklearn.lda.LDA.html#sklearn.lda.LDA.transform
-SK: PCA
-https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
-"""
 
-from emnist import extract_training_samples
+
+from emnist import extract_training_samples, extract_test_samples
 import os
 import numpy as np
 import scipy.io as sio
@@ -45,16 +35,22 @@ matplotlib.rcParams['figure.figsize'] = (20, 20)
 matplotlib.rcParams["figure.dpi"] = 220
 
 
-def SplitbyClasses(classSize=100, classes=None, shuffle_data=False):
+def SplitbyClasses(classSize=100, classes=None, shuffle_data=False, test_set=False):
     """
         Given the labels you want and the maximal size for each of the label, this function
         will return the splited data set for each.
+        Note:
+            Data is chosen from the training set.
     :param classes:
         An array for the labels you want to filter out from the EMNISt data set.
     :param classSize:
         For each of the labels, what is the max size we want for each of the labels.
     """
-    images, labels = extract_training_samples("byclass")
+    images, labels = None, None
+    if test_set:
+        images, labels = extract_test_samples("byclass")
+    else:
+        images, labels = extract_training_samples("byclass")
     Idx = []
     classes = list(range(0, 62)) if classes is  None else classes
     for Label in classes:
