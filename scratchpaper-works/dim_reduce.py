@@ -1,14 +1,31 @@
+"""
+------------------------------------------------------------------------------------------------------------------------
+Reference Materials Used:
+------------------------------------------------------------------------------------------------------------------------
+SK: plotting the confusion chart
+https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
+SK: LDA
+https://scikit-learn.org/0.16/modules/generated/sklearn.lda.LDA.html#sklearn.lda.LDA.transform
+SK: PCA
+https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+"""
+
 from emnist import extract_training_samples
 import os
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
+import matplotlib
 from collections import Counter
 
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.svm import SVC
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 
-CURRENT_DIRECTORY = None
+
 
 ## name space stuff:
 shuffle = np.random.shuffle
@@ -21,6 +38,12 @@ mean = np.mean
 figure = plt.figure
 title = plt.title
 legend = plt.legend
+matshow = plt.matshow
+
+## Meta settings
+CURRENT_DIRECTORY = None
+matplotlib.rcParams['figure.figsize'] = (20, 20)
+matplotlib.rcParams["figure.dpi"] = 220
 
 
 def SplitbyClasses(classSize=100, classes=None):
@@ -63,7 +86,18 @@ def SymbolsToLabels(symbol:str, SymToLabel=dict()):
 
 class LDADimReduce:
 
-    def __init__(this, X = None, y= None, n_components=60, classSize=1000, classes=None):
+    def __init__(this, X = None, y= None, n_components=None, classSize=1000, classes=None):
+        """
+            Creates an instance of the LDA dim_reduce on the EMNIST data set.
+        :param X: (Optional) The data that we want to train the LDA on.
+        :param y: (Optional, require X) The labels of the training data X.
+        :param n_components:
+            The number of components we want to for the embeddings.
+        :param classSize:
+            The size of the class to sample. All classes will be sampled by the same amount.
+        :param classes:
+            List of labels we want to sample from the EMNIST data set.
+        """
         if (X is None) or (y is None):
             X, y = SplitbyClasses(classSize=classSize, classes=classes)
         Template = LDA(n_components=n_components)
@@ -74,15 +108,34 @@ class LDADimReduce:
         this.Data = X
         this.Labels = y
 
-    def getEmbeddings(this, toTransform):
+    def getEmbeddings(this, toTransform=None):
+        """
+        Get the embeddings for the given data
+        :param toTransform: (Optional) if not given, it will return the embeddings of the data that the
+        LDA model is trained on.
+        :return:
+            The embeddings of the data. Each row is a sample.
+        """
         lda = this.LdaModel
-        Embeddings = lda.transform(toTransform)  # Rows are embeddings in all 60 dimensions
-        return Embeddings
+        if toTransform is not None:
+            Embeddings = lda.transform(toTransform)  # Rows are embeddings in all 60 dimensions
+            return Embeddings
+        else:
+            return lda.transform(this.Data)
 
 class PCADimReduce:
 
     def __init__(this,X=None, y=None, n_components=0.9, classSize=1000, classes=None):
+        """
+
+        :param X:
+        :param y:
+        :param n_components:
+        :param classSize:
+        :param classes:
+        """
         if (X is None) or (y is None):
+
             X, y= SplitbyClasses(classSize=classSize, classes=classes)
         this.PcaModel = PCA(n_components=n_components, svd_solver="full")
         this.PcaModel.fit(X, y)
@@ -99,6 +152,11 @@ class PCADimReduce:
 
     def getCompEV(this):
         return this.PcaModel.explained_variance_ratio_
+
+class DimReduceHybrid:
+    def __int__(this):
+        pass
+
 
 
 def main():
@@ -121,7 +179,7 @@ def main():
         show()
         print("Demonstration ended. ")
 
-    LDADemonstration()
+    # LDADemonstration()
 
     def PCAPlusLDADemonstration():
         PCAInstance = PCADimReduce(n_components=0.8); print("Getting PCA Model...")
@@ -151,7 +209,29 @@ def main():
         title("PCA + LDA on Test data set")
         show()
 
-    PCAPlusLDADemonstration()
+    # PCAPlusLDADemonstration()
+
+    def SVMTesting():
+        DisplayLabels = "abcdefghijklmnopqrstuvwxyz"
+        classes = [SymbolsToLabels(II) for II in DisplayLabels]
+        Model = make_pipeline(StandardScaler(), SVC(gamma="auto"))  # Making the SVC Model.
+
+        TrainX, TrainY = SplitbyClasses(classes=classes, classSize=1000)
+        TestX, TestY = SplitbyClasses(classes=classes, classSize=3000)
+
+        DimRe = LDADimReduce(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
+        TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
+        TestEmbeddings = DimRe.getEmbeddings(TestX) # Get the embeddings from the test set.
+
+        Model.fit(TrainEmbeddings, TrainY); print(f"Modeling Has been fitted: ")
+        print(Model)
+        disp = plot_confusion_matrix(Model, TestEmbeddings, TestY, display_labels=list(DisplayLabels))
+        disp.ax_.set_title("Test Set SVM")
+        disp = plot_confusion_matrix(Model, TrainEmbeddings, TrainY, display_labels=list(DisplayLabels))
+        disp.ax_.set_title("Training Set SVM")
+        show()
+
+    SVMTesting()
 
 
 if __name__ == "__main__":
