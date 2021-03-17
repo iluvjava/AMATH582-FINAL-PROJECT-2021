@@ -8,6 +8,7 @@ from collections import Counter
 
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -57,7 +58,7 @@ def SplitbyClasses(classSize=100, classes=None, shuffle_data=False, test_set=Fal
     for Label in classes:
         ClsIdx = np.argwhere(labels == Label)
         ClsIdx = reshape(ClsIdx, ClsIdx.shape[0])
-        if shuffle_data: clsIdx = shuffle(ClsIdx)
+        if shuffle_data: shuffle(ClsIdx)
         ClsIdx = ClsIdx[: min(ClsIdx.shape[0], classSize)]
         for Idex in ClsIdx:
             Idx.append(Idex)
@@ -117,16 +118,19 @@ class ConfusionMatrix:
         """
         fig = figure()
         ax = fig.add_subplot(111)
-        im = ax.matshow(this.ConfusionMatrix, cmap='winter')
+        im = ax.matshow(this.ConfusionMatrix, cmap='winter', interpolation='nearest')
         fig.colorbar(im)
 
-        ax.set_yticklabels([""] + this.AxisTicks)
-        ax.set_xticklabels([""] + this.AxisTicks)
-        plt.ylabel("True Labels")
-        plt.xlabel("Predicted")
         for (i, j), z in np.ndenumerate(this.ConfusionMatrix):
-            ax.text(j, i, '{:0.1f}'.format(z), ha='center', va='center',
-                    bbox=dict(boxstyle='round', facecolor='white', edgecolor='0.3'))
+            ax.text(j, i, '{:0.1f}'.format(z), ha='center', va='center', color="white",
+                bbox=dict(facecolor='none', edgecolor='0.3'))
+
+        plt.xlabel("Predicted")
+        plt.ylabel("True Labels")
+        ax.set_xticks(np.arange(len(this.AxisTicks)))
+        ax.set_xticklabels(this.AxisTicks)
+        ax.set_yticks(np.arange(len(this.AxisTicks)))
+        ax.set_yticklabels(this.AxisTicks)
         if title is not None:
             fig.suptitle(title)
         return fig, ax
@@ -340,18 +344,35 @@ def main():
         print("Yes, if you see this then the condition has been asserted. ")
 
     def TestConfusionMatrix():
-        FakeLabels = [1, 1, 1, 2, 2, 2]
-        FakeLabels2 = [1, 2, 1, 2, 1, 2]
+        FakeLabels = list(range(30))
+        FakeLabels2 = list(range(30))
         MyConMat = ConfusionMatrix(FakeLabels, FakeLabels2)
         print(MyConMat.TotalAccuracy)
         print(MyConMat.FalseNegativeEach)
         print(MyConMat.FalsePositiveEach)
-        MyConMat.visualize()
+        fig, ax =MyConMat.report()
+        fig, ax = MyConMat.visualize()
         show()
-        fig, _ =MyConMat.report()
         fig.show()
 
     TestConfusionMatrix()
+
+    def TestDecisionTree():
+        Symbols = "0o2zZO"
+        classes = [SymbolsToLabels(II) for II in Symbols]
+        TrainX, TrainY = SplitbyClasses(classes=classes, classSize=3000)
+        TestX, TestY = SplitbyClasses(classes=classes, classSize=3000, shuffle_data=True, test_set=True)
+        DimRe = LDADimReduce(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
+        TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
+        TestEmbeddings = DimRe.getEmbeddings(TestX)  # Get the embeddings from the test set.
+        Model = RandomForestClassifier(n_estimators=200, n_jobs=-1)
+        Model.fit(TrainEmbeddings, TrainY)
+        Score = Model.score(TestEmbeddings, TestY)
+        print(f"Random Forest Score Test set: {Score}")
+        Score = Model.score(TrainEmbeddings, TrainY)
+        print(f"Trandom Forest Score Train set: {Score}")
+
+
 
 
 if __name__ == "__main__":
