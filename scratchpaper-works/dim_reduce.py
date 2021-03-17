@@ -1,5 +1,3 @@
-
-
 from emnist import extract_training_samples, extract_test_samples
 import os
 import numpy as np
@@ -15,7 +13,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 
-## name space stuff:
+## name space stuff
+diag = np.diag
 shuffle = np.random.shuffle
 reshape = np.reshape
 zeros = np.zeros
@@ -28,10 +27,12 @@ title = plt.title
 legend = plt.legend
 matshow = plt.matshow
 array_equal=np.array_equal
+unique = np.unique
+ylim = plt.ylim
 
 ## Meta settings
 CURRENT_DIRECTORY = None
-matplotlib.rcParams['figure.figsize'] = (20, 20)
+matplotlib.rcParams['figure.figsize'] = (10, 10)
 matplotlib.rcParams["figure.dpi"] = 220
 
 
@@ -78,6 +79,69 @@ def SymbolsToLabels(symbol:str, SymToLabel=dict()):
     for II, V in enumerate(Digits + Letters + Letters.upper()):
         SymToLabel[V] = II
     return SymToLabel[symbol]
+
+
+def LabelsToSymbols(label:int, LabelToSymb=dict()):
+    if len(LabelToSymb) != 0:
+        return LabelToSymb[label]
+    Letters = "".join([chr(97 + II) for II in range(26)])
+    Digits = "".join(map(str, range(10)))
+    for II, V in enumerate(Digits + Letters + Letters.upper()):
+        LabelToSymb[II] = V
+    return LabelToSymb[label]
+
+
+class ConfusionMatrix:
+
+    def __init__(this, testLabels, predictedlabels):
+        this.TestLabels = testLabels
+        this.PredictedLabels = predictedlabels
+        Conmat = confusion_matrix(testLabels, predictedlabels)
+        this.ConfusionMatrix = Conmat
+        this.TotalAccuracy = \
+            np.sum(diag(Conmat))/np.sum(Conmat)
+        # False positive, none diag row sum, it is but actually it's not.
+        this.FalsePositiveEach = np.sum(Conmat - diag(diag(Conmat)), axis=0)/(np.sum(Conmat, axis=0))
+        # False negative, none diag column sum, it's not but actually it is.
+        this.FalseNegativeEach = np.sum(Conmat - diag(diag(Conmat)), axis=1)/(np.sum(Conmat, axis=1))
+        LabelsSorted = unique(this.TestLabels.copy())
+        np.sort(LabelsSorted)
+        Ticks = [LabelsToSymbols(II) for II in LabelsSorted]
+        this.AxisTicks = Ticks
+
+    def visualize(this, title:str=None):
+        """
+            Visualize the confusion matrix.
+        :return:
+            fig, ax
+        """
+        fig = figure()
+        ax = fig.add_subplot(111)
+        im = ax.matshow(this.ConfusionMatrix, cmap='winter')
+        fig.colorbar(im)
+
+        ax.set_yticklabels([""] + this.AxisTicks)
+        ax.set_xticklabels([""] + this.AxisTicks)
+        plt.ylabel("True Labels")
+        plt.xlabel("Predicted")
+        for (i, j), z in np.ndenumerate(this.ConfusionMatrix):
+            ax.text(j, i, '{:0.1f}'.format(z), ha='center', va='center',
+                    bbox=dict(boxstyle='round', facecolor='white', edgecolor='0.3'))
+        if title is not None:
+            fig.suptitle(title)
+        return fig, ax
+
+    def report(this):
+        print(f"Over all accuracy is: {this.TotalAccuracy}")
+        fig, (Top, Bottom) = plt.subplots(2, 1)
+        fig.suptitle("Accuracy Each Label")
+        Top.bar(this.AxisTicks, this.FalsePositiveEach)
+        Top.set_title("False Positive")
+        Top.set_ylim((0, 1))
+        Bottom.bar(this.AxisTicks, this.FalseNegativeEach)
+        Bottom.set_title("False Negative")
+        Bottom.set_ylim((0, 1))
+        return fig, (Top, Bottom)
 
 
 class LDADimReduce:
@@ -275,7 +339,19 @@ def main():
         assert array_equal(X1, X2)
         print("Yes, if you see this then the condition has been asserted. ")
 
-    SplitByClassesShuffleTesting()
+    def TestConfusionMatrix():
+        FakeLabels = [1, 1, 1, 2, 2, 2]
+        FakeLabels2 = [1, 2, 1, 2, 1, 2]
+        MyConMat = ConfusionMatrix(FakeLabels, FakeLabels2)
+        print(MyConMat.TotalAccuracy)
+        print(MyConMat.FalseNegativeEach)
+        print(MyConMat.FalsePositiveEach)
+        MyConMat.visualize()
+        show()
+        fig, _ =MyConMat.report()
+        fig.show()
+
+    TestConfusionMatrix()
 
 
 if __name__ == "__main__":
