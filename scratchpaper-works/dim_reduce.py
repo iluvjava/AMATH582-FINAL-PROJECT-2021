@@ -8,7 +8,8 @@ from collections import Counter
 
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -355,9 +356,7 @@ def main():
         show()
         fig.show()
 
-    TestConfusionMatrix()
-
-    def TestDecisionTree():
+    def TestDecisionTreeEnsemble():
         Symbols = "0o2zZO"
         classes = [SymbolsToLabels(II) for II in Symbols]
         TrainX, TrainY = SplitbyClasses(classes=classes, classSize=3000)
@@ -372,7 +371,21 @@ def main():
         Score = Model.score(TrainEmbeddings, TrainY)
         print(f"Trandom Forest Score Train set: {Score}")
 
-
+    def TestAdaBoost():
+        Symbols = "abcdefghijklmnopqrstuvwxyz"
+        classes = [SymbolsToLabels(II) for II in Symbols]
+        Model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=3),
+                                    algorithm="SAMME",
+                                    n_estimators=200)
+        TrainX, TrainY = SplitbyClasses(classes=classes, classSize=1000)
+        TestX, TestY = SplitbyClasses(classes=classes, classSize=200, shuffle_data=True, test_set=True)
+        DimRe = LDADimReduce(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
+        TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
+        TestEmbeddings = DimRe.getEmbeddings(TestX)  # Get the embeddings from the test set.
+        Model.fit(TrainEmbeddings, TrainY)
+        print(f"AdaBoost Test Score {Model.score(TestEmbeddings, TestY)}")
+        print(f"AdaBoost Train Score {Model.score(TrainEmbeddings, TrainY)}")
+    TestAdaBoost()
 
 
 if __name__ == "__main__":
