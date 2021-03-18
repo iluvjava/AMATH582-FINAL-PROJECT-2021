@@ -41,6 +41,49 @@ matplotlib.rcParams['figure.figsize'] = (10, 10)
 matplotlib.rcParams["figure.dpi"] = 220
 
 
+def THREE_CLS_AUX_FUN():
+    """
+        Given this function, it returns a function that does the label mapping
+        and an array for the axis labels. (In the same order as the labels)
+
+        Maps the labels to these classes:
+        1. Is digit
+        2. Is smaller case letter.
+        3. Is cap letter.
+    """
+    def SplitByFunc(label:int):
+        if LabelsToSymbols(label) in DIGITS:
+            return 0
+
+        elif LabelsToSymbols(label) in LOWER_LETTERS:
+            return 1
+
+        elif LabelsToSymbols(label) in UPPER_LETTERS:
+            return 2
+        else:
+            raise Exception("Something is wrong this should not happen check code. ")
+    AxisLabels = ["Digit", "Lower Letter", "Upper Letter"]
+    return SplitByFunc, AxisLabels, [0, 1, 2]
+
+
+def TWO_CLS_AUX_FUN():
+    """
+        Given this function, it returns a function that does the label mapping
+        and an array for the axis labels. (In the same order as the labels)
+
+        Maps the labels to these classes:
+        1. Is digit
+        2. Is not a digit.
+    """
+    def SplitByFunc(label:int):
+        if LabelsToSymbols(label) in DIGITS:
+            return 0
+        else:
+            return 1
+    AxisLabels = ["Digit", "Letters"]
+    return SplitByFunc, AxisLabels, [0, 1]
+
+
 def SplitbyClasses(classSize=100, classes=None, shuffle_data=False, test_set=False):
     """
         Given the labels you want and the maximal size for each of the label, this function
@@ -115,6 +158,51 @@ def SplitbyLetterDigits(classSize=100, test_set=False):
     RowDataMtx /= 255
     RowDataMtx -= mean(RowDataMtx, axis=1, keepdims=True)
     return RowDataMtx, Labels
+
+
+def SplitByFunc(auxFun:callable, test_set=False, classSize:int=100):
+    """
+        Given a class function that transform the labels to the desired labels, this
+        function will split the samples by the function.
+        1. Always shuffle the data.
+        2. The classSize is the maximal size for each class, if given class is less than it then
+        all the samples of the class will be given and homegnenuity will not be asserted.
+        3. images and labels will be normalized.
+
+        :param classSize:
+            The maixmal size for each of the classes.
+        :param test_set:
+            Whether to choose the labels and images from the ENMIST test set.
+        :param auxFun:
+            The auxilary function for sub-classes of all 62 labels.
+
+    """
+    auxFun, axisLabels, NewLabels = auxFun()
+    if test_set:
+        images, labels = extract_test_samples("byclass")
+    else:
+        images, labels = extract_training_samples("byclass")
+    TransformedLabels = np.vectorize(auxFun)(labels)
+    IndicesChosen = []
+    for II in NewLabels:
+        Idx = np.where(TransformedLabels==II)
+        Idx = Idx[0]
+        shuffle(Idx)
+        Idx = Idx[:min(len(Idx), classSize)]
+        for JJ in Idx:
+            IndicesChosen.append(JJ)
+
+    RowDataMtx = images[IndicesChosen, ::, ::]
+    LabelsChosen = labels[IndicesChosen]
+    RowDataMtx = reshape(RowDataMtx, (len(IndicesChosen), 28 * 28))
+    RowDataMtx = RowDataMtx.astype(np.float)
+    RowDataMtx /= 255
+    RowDataMtx -= mean(RowDataMtx, axis=1, keepdims=True)
+    return RowDataMtx, \
+           np.vectorize(auxFun)(LabelsChosen), \
+           LabelsChosen, \
+           NewLabels, \
+           axisLabels
 
 
 def SymbolsToLabels(symbol:str, SymToLabel=dict()):
@@ -210,6 +298,7 @@ class ConfusionMatrix:
         Bottom.set_title("False Negative")
         Bottom.set_ylim((0, 1))
         return fig, (Top, Bottom)
+
 
 class LabelsOrganizer:
     """
