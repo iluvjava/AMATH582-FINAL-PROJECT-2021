@@ -52,7 +52,6 @@ def SplitbyClasses(classSize=100, classes=None, shuffle_data=False, test_set=Fal
     :param classSize:
         For each of the labels, what is the max size we want for each of the labels.
     """
-    images, labels = None, None
     if test_set:
         images, labels = extract_test_samples("byclass")
     else:
@@ -69,6 +68,49 @@ def SplitbyClasses(classSize=100, classes=None, shuffle_data=False, test_set=Fal
     RowDataMtx = images[Idx, :, :]
     Labels = labels[Idx]
     RowDataMtx = reshape(RowDataMtx, (len(Idx), 28*28))
+    RowDataMtx = RowDataMtx.astype(np.float)
+    RowDataMtx /= 255
+    RowDataMtx -= mean(RowDataMtx, axis=1, keepdims=True)
+    return RowDataMtx, Labels
+
+
+def SplitbyLetterDigits(classSize=100, test_set=False):
+    """
+    Split the training/test data set into 3 big groups:
+        1. The digits.
+        2. The Upper cased letters.
+        3. The lower cased letters.
+
+    Note: This class will always shuffle the data!
+    Note: This class will perform zero mean unit variances STANDARDIZATION.
+
+    :param classSize:
+        The maximal size for each of the classes.
+    :param test_set:
+        Whether to choose the data set from the EMNISt test set, or the data set.
+    :Return :
+        The returned labels will still be in the range of [0, 62], but they
+        will be evenly partitioned into the 3 classes above.
+    """
+    if test_set:
+        images, labels = extract_test_samples("byclass")
+    else:
+        images, labels = extract_training_samples("byclass")
+
+    Organizer = LabelsOrganizer()
+    TreeClassesLabels = Organizer.getDataLabels()
+    IndicesChosen = []
+    for II in range(3):
+        Idx = np.where(TreeClassesLabels==II)
+        Idx = reshape(Idx, Idx.shape[0])
+        shuffle(Idx)
+        Idx = Idx[:min(Idx.shape[0], classSize)]
+        for JJ in Idx:
+            IndicesChosen.append(JJ)
+
+    RowDataMtx = images[IndicesChosen, :, :]
+    Labels = labels[IndicesChosen]
+    RowDataMtx = reshape(RowDataMtx, (len(Idx), 28 * 28))
     RowDataMtx = RowDataMtx.astype(np.float)
     RowDataMtx /= 255
     RowDataMtx -= mean(RowDataMtx, axis=1, keepdims=True)
@@ -142,14 +184,29 @@ class ConfusionMatrix:
             fig.suptitle(title)
         return fig, ax
 
-    def report(this):
+    def report(this, sort_it=True):
+
+        FPAxTicks = this.AxisTicks
+        FNAxTicks = this.AxisTicks
+        FP = this.FalsePositiveEach
+        FN = this.FalseNegativeEach
+
+        if sort_it:
+            ToSort = list(zip(FP, FPAxTicks))
+            ToSort = sorted(ToSort, key=lambda x: x[0])
+            FP, FPAxTicks = zip(*ToSort)
+
+            ToSort = list(zip(FN, FNAxTicks))
+            ToSort = sorted(ToSort, key=lambda x: x[0])
+            FN, FNAxTicks = zip(*ToSort)
+
         print(f"Over all accuracy is: {this.TotalAccuracy}")
         fig, (Top, Bottom) = plt.subplots(2, 1)
         fig.suptitle("Accuracy Each Label")
-        Top.bar(this.AxisTicks, this.FalsePositiveEach)
+        Top.bar(FPAxTicks, FP)
         Top.set_title("False Positive")
         Top.set_ylim((0, 1))
-        Bottom.bar(this.AxisTicks, this.FalseNegativeEach)
+        Bottom.bar(FNAxTicks, FN)
         Bottom.set_title("False Negative")
         Bottom.set_ylim((0, 1))
         return fig, (Top, Bottom)
@@ -162,22 +219,7 @@ class LabelsOrganizer:
         1. digits.
     """
 
-    def __init__(this,
-                 test_set=False,
-                 classSize=2000,
-                 classes=None,
-                 shuffle_data=True
-                 ):
-
-        Images, Labels = SplitbyClasses(classes=classes,
-                                        test_set=test_set,
-                                        classSize=classSize,
-                                        shuffle_data=shuffle_data)
-        this.Data = Images
-        this.OriginalLabels = Labels
-
-    def getDataLabels(this, mapping:callable=None, newLabelsMapping=None):
-
+    def __init__(this, mapping:callable=None, axisTicks:dict=None):
         def DefaultMapping(label):
             if LabelsToSymbols(label) in DIGITS:
                 return 0
@@ -188,10 +230,29 @@ class LabelsOrganizer:
             else:
                 raise Exception("Something is wrong this should not happen check code. ")
 
-        if newLabelsMapping is None:
-            this.TheMap = {0: "Digits", 1: "Lower Cased Letter", 2: "Upper Letters"}
-        this.Labels = np.vectorize(DefaultMapping)(this.OriginalLabels)
-        return this.Data, this.Labels
+        if (mapping is None) != (axisTicks is None):
+            raise Exception("The new map for labels and the label mapping function has to be given at the same time.")
+
+        if mapping is None:
+            this.Mapping = DefaultMapping
+        else:
+            this.Mapping = mapping
+
+        if axisTicks is None:
+            this.AxisTicks = {0: "Digits", 1: "Lower Cased Letter", 2: "Upper Letters"}
+        else:
+            this.AxisTicks = axisTicks
+
+    def getDataLabels(this, labels):
+        Labels = np.vectorize(this.Mapping)(labels)
+        return Labels
+
+    def getDataTicks(this):
+        """
+        Returns: the axis labels for the confusion matrix.
+        """
+
+        return list(this.AxisTicks.values())
 
 
 class LDADimReduce:
@@ -301,7 +362,6 @@ class DimReduceHybrid:
         PCAEmbeddings = this.PCAModel.transform(X)
         LDAEmbeddings = this.LDAModel.transform(PCAEmbeddings)
         return LDAEmbeddings
-
 
 
 def main():

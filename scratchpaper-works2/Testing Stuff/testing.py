@@ -138,15 +138,6 @@ def TestAdaBoost():
     print(f"AdaBoost Test Score {Model.score(TestEmbeddings, TestY)}")
     print(f"AdaBoost Train Score {Model.score(TrainEmbeddings, TrainY)}")
 
-def TestLabelsorganizer():
-    classes = [SymbolsToLabels(S) for S in "aA"]
-    DataOrganizer = LabelsOrganizer(classSize=3, shuffle_data=True, classes=classes)
-    Data, Labels = DataOrganizer.getDataLabels()
-    matplotlib.rcParams['figure.figsize'] = (3, 3)
-    for II, D in np.ndenumerate(Labels):
-        plt.imshow(reshape(Data[II,:], (28, 28)))
-        plt.title(f"The label is: {D}")
-        show()
 
 def TestSplitByClasses():
     classes = [SymbolsToLabels(S) for S in "aAbB"]
@@ -158,8 +149,68 @@ def TestSplitByClasses():
         show()
 
 
+def TestSubClassClassification():
+
+    ## Classifying using random forest on approximate sub-classes.
+    TrainX, TrainY = SplitbyClasses(classSize=2000, shuffle_data=True)
+    Organizer1 = LabelsOrganizer()
+    TrainY = Organizer1.getDataLabels(TrainY)
+    TestX, TestY = SplitbyClasses(classSize = 100, shuffle_data=True, test_set=True)
+    TestY = Organizer1.getDataLabels(TestY)
+
+    DimRe = DimReduceHybrid(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
+    TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
+    TestEmbeddings = DimRe.getEmbeddings(TestX)  # Get the embeddings from the test set.
+
+    # Model = RandomForestClassifier(n_estimators=100, n_jobs=-1, max_leaf_nodes=)
+    Model = RandomForestClassifier(n_estimators=200, n_jobs=-1, verbose=1, max_leaf_nodes=20)
+    Model.fit(TrainEmbeddings, TrainY)
+    TestLabbelsPredicted = Model.predict(TestEmbeddings)
+    AxTicks = Organizer1.getDataTicks()
+    Conmat = ConfusionMatrix(TestY, TestLabbelsPredicted, axisTicks=AxTicks)
+    Conmat.visualize()
+    show()
+    Conmat.report()
+    show()
+
+
+
+def TestConfusionMatrixSortedFNFP():
+    DisplayLabels = DisplayLabels = "0oOz25sS"
+    classes = [SymbolsToLabels(II) for II in DisplayLabels]
+    Model = make_pipeline(StandardScaler(), SVC(gamma="auto"))  # Making the SVC Model.
+
+    TrainX, TrainY = SplitbyClasses(classes=classes, classSize=1000)
+    TestX, TestY = SplitbyClasses(classes=classes, classSize=100, shuffle_data=True, test_set=True)
+
+    DimRe = LDADimReduce(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
+    TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
+    TestEmbeddings = DimRe.getEmbeddings(TestX)  # Get the embeddings from the test set.
+
+    Model.fit(TrainEmbeddings, TrainY)
+    print(f"Modeling Has been fitted: ")
+    PredictedLabels = Model.predict(TestEmbeddings)
+    Conmat = ConfusionMatrix(TestY, PredictedLabels)
+    _, ax = Conmat.visualize()
+    show()
+    ax.set_title("SVM Confusion Test set")
+    _, ax = Conmat.report()
+    show()
+    Model.score(TestEmbeddings, TestY)
+
+
+def TestSplitbyLetterDigits():
+    Images, Labels = SplitbyLetterDigits(classSize=5)
+    matplotlib["figure.figsize"] = (5, 5)
+    for II, Label in np.ndenumerate(Labels):
+        matshow(reshape(Images[II, :], (28, 28)))
+        plt.title(f"Class {II}")
+        show()
+
+
+
 def main():
-    TestSplitByClasses()
+    TestSplitbyLetterDigits()
     pass
 
 if __name__ == "__main__":
