@@ -98,19 +98,19 @@ def SplitbyLetterDigits(classSize=100, test_set=False):
         images, labels = extract_training_samples("byclass")
 
     Organizer = LabelsOrganizer()
-    TreeClassesLabels = Organizer.getDataLabels()
+    TreeClassesLabels = Organizer.getDataLabels(labels)
     IndicesChosen = []
     for II in range(3):
         Idx = np.where(TreeClassesLabels==II)
-        Idx = reshape(Idx, Idx.shape[0])
+        Idx = Idx[0]
         shuffle(Idx)
-        Idx = Idx[:min(Idx.shape[0], classSize)]
+        Idx = Idx[:min(len(Idx), classSize)]
         for JJ in Idx:
             IndicesChosen.append(JJ)
 
-    RowDataMtx = images[IndicesChosen, :, :]
+    RowDataMtx = images[IndicesChosen, ::, ::]
     Labels = labels[IndicesChosen]
-    RowDataMtx = reshape(RowDataMtx, (len(Idx), 28 * 28))
+    RowDataMtx = reshape(RowDataMtx, (len(IndicesChosen), 28 * 28))
     RowDataMtx = RowDataMtx.astype(np.float)
     RowDataMtx /= 255
     RowDataMtx -= mean(RowDataMtx, axis=1, keepdims=True)

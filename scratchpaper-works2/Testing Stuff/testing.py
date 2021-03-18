@@ -152,10 +152,12 @@ def TestSplitByClasses():
 def TestSubClassClassification():
 
     ## Classifying using random forest on approximate sub-classes.
-    TrainX, TrainY = SplitbyClasses(classSize=2000, shuffle_data=True)
+    # TrainX, TrainY = SplitbyClasses(classSize=2000, shuffle_data=True)
+    TrainX, TrainY = SplitbyLetterDigits(classSize=2000)
     Organizer1 = LabelsOrganizer()
     TrainY = Organizer1.getDataLabels(TrainY)
-    TestX, TestY = SplitbyClasses(classSize = 100, shuffle_data=True, test_set=True)
+    # TestX, TestY = SplitbyClasses(classSize = 100, shuffle_data=True, test_set=True)
+    TestX, TestY = SplitbyLetterDigits(classSize=1000,test_set=True)
     TestY = Organizer1.getDataLabels(TestY)
 
     DimRe = DimReduceHybrid(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
@@ -201,16 +203,18 @@ def TestConfusionMatrixSortedFNFP():
 
 def TestSplitbyLetterDigits():
     Images, Labels = SplitbyLetterDigits(classSize=5)
-    matplotlib["figure.figsize"] = (5, 5)
+    matplotlib.rcParams["figure.figsize"] = (5, 5)
     for II, Label in np.ndenumerate(Labels):
         matshow(reshape(Images[II, :], (28, 28)))
-        plt.title(f"Class {II}")
+        plt.title(f"Class {Labels[II]}")
         show()
+    print("Test Past")
+
 
 
 
 def main():
-    TestSplitbyLetterDigits()
+    TestSubClassClassification()
     pass
 
 if __name__ == "__main__":
