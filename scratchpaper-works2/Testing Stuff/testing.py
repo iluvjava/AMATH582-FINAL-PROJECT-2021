@@ -22,8 +22,6 @@ def LDADemonstration():
     show()
     print("Demonstration ended. ")
 
-    # LDADemonstration()
-
 
 def PCAPlusLDADemonstration():
     PCAInstance = PCADimReduce(n_components=0.8);
@@ -149,40 +147,12 @@ def TestSplitByClasses():
         show()
 
 
-def TestSubClassClassification():
-
-    ## Classifying using random forest on approximate sub-classes.
-    # TrainX, TrainY = SplitbyClasses(classSize=2000, shuffle_data=True)
-    TrainX, TrainY = SplitbyLetterDigits(classSize=2000)
-    Organizer1 = LabelsOrganizer()
-    TrainY = Organizer1.getDataLabels(TrainY)
-    # TestX, TestY = SplitbyClasses(classSize = 100, shuffle_data=True, test_set=True)
-    TestX, TestY = SplitbyLetterDigits(classSize=1000,test_set=True)
-    TestY = Organizer1.getDataLabels(TestY)
-
-    DimRe = DimReduceHybrid(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
-    TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
-    TestEmbeddings = DimRe.getEmbeddings(TestX)  # Get the embeddings from the test set.
-
-    # Model = RandomForestClassifier(n_estimators=100, n_jobs=-1, max_leaf_nodes=)
-    Model = RandomForestClassifier(n_estimators=200, n_jobs=-1, verbose=1, max_leaf_nodes=20)
-    Model.fit(TrainEmbeddings, TrainY)
-    TestLabbelsPredicted = Model.predict(TestEmbeddings)
-    AxTicks = Organizer1.getDataTicks()
-    Conmat = ConfusionMatrix(TestY, TestLabbelsPredicted, axisTicks=AxTicks)
-    Conmat.visualize()
-    show()
-    Conmat.report()
-    show()
-
-
-
 def TestConfusionMatrixSortedFNFP():
     DisplayLabels = DisplayLabels = "0oOz25sS"
     classes = [SymbolsToLabels(II) for II in DisplayLabels]
     Model = make_pipeline(StandardScaler(), SVC(gamma="auto"))  # Making the SVC Model.
 
-    TrainX, TrainY = SplitbyClasses(classes=classes, classSize=1000)
+    TrainX, TrainY = SplitbyClasses(classes=classes, classSize=3000)
     TestX, TestY = SplitbyClasses(classes=classes, classSize=100, shuffle_data=True, test_set=True)
 
     DimRe = LDADimReduce(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
@@ -211,6 +181,35 @@ def TestSplitbyLetterDigits():
     print("Test Past")
 
 
+def TestSubClassClassification():
+
+    ## Classifying using random forest on approximate sub-classes.
+    # TrainX, TrainY = SplitbyClasses(classSize=2000, shuffle_data=True)
+    TrainX, TrainY = SplitbyLetterDigits(classSize=20000)
+    Organizer1 = LabelsOrganizer()
+    TrainY = Organizer1.getDataLabels(TrainY)
+    # TestX, TestY = SplitbyClasses(classSize = 100, shuffle_data=True, test_set=True)
+    TestX, TestY = SplitbyLetterDigits(classSize=3000,test_set=True)
+    TestY = Organizer1.getDataLabels(TestY)
+
+    DimRe = DimReduceHybrid(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
+    TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
+    TestEmbeddings = DimRe.getEmbeddings(TestX)  # Get the embeddings from the test set.
+
+    # Model = RandomForestClassifier(n_estimators=100, n_jobs=-1, max_leaf_nodes=)
+    Model = RandomForestClassifier(n_estimators=200,
+                                   n_jobs=-1,
+                                   verbose=1,
+                                   min_samples_leaf=0.01,
+                                   class_weight={0:1, 1: 3, 2: 3})
+    Model.fit(TrainEmbeddings, TrainY)
+    TestLabbelsPredicted = Model.predict(TestEmbeddings)
+    AxTicks = Organizer1.getDataTicks()
+    Conmat = ConfusionMatrix(TestY, TestLabbelsPredicted, axisTicks=AxTicks)
+    Conmat.visualize()
+    show()
+    Conmat.report()
+    show()
 
 
 def main():
