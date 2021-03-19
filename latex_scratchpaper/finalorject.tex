@@ -252,7 +252,79 @@
 
 
 \section{Algorithm Implementation and Development}
+    \section{Scratch Paper Works for Overleaf}
+    \begin{algorithm}\label{alg:1}
+        \begin{algorithmic}[1]
+            \STATE{\textbf{Input:} ClassSize, TestSet, Classes, Shuffle(Optional)}
+            \STATE{Images, Labels = EMNIST Test set if TestSet else EMNIST Training set}
+            \STATE{\textbf{Initialize: } SelectedIndices}
 
+            \FOR{L in Classes}
+            {
+                \STATE{Indices = np.where(Labels==L)}
+                \STATE{Reshape Indices into a 1-D numpy array}
+                \IF{Shuffle}
+                {
+                    \STATE{Shuffle Indices}
+                }
+                \ENDIF
+                \STATE{Indices = Indices[min(Indices.size, ClassSize)]}
+                \STATE{SelectedIndices.append(Indices)}
+            }\ENDFOR
+            \STATE{RowDataMatrix := Images[Indices, ::, ::]}
+            \STATE{RowDataMatrix := RowDataMatrix as type np.floats}
+            \STATE{Labels := Labels[Indices]}
+            \STATE{RowDataMatrix := RowDataMatrix/255}
+            \STATE{RowDataMatrix := RowDataMatrix - mean(RowDataMatrix, axis=0)}
+            \STATE{\textbf{Return:} RowDataMatrix, Labels}
+        \end{algorithmic}\caption{Algorithm 1: Splitting by Classes and Data Standardization}
+    \end{algorithm}
+    \begin{algorithm}\label{alg:2}
+        \begin{algorithmic}[1]
+            \STATE{\textbf{Input: } AuxFunc, TestSet, ClassSize}
+            \STATE{Mapping, NewAxisLabels, NewLabels}
+            \STATE{Images, Labels := Images and labels from the EMNIST test set if 
+            TestSet else from EMNIST Training Set}
+            \STATE{TransFormedLabels = np.vectorize(Mapping)(Labels)}
+            \STATE{\textbf{Initialize: }IndicesChosen}
+            \FOR{II in NewLabels}
+            {
+                \STATE{Idx = np.where(TransformedLabels = II)}
+                \STATE{Reshaoe Idx so it's 1-d Numpy array}
+                \STATE{Shuffle Idx}
+                \STATE{Idx := Idx[:min(idx.size, classsize)]}
+                \STATE{Merge Idx into: IndicesChosen}
+            }\ENDFOR
+            \STATE{Images := Images[IndicesChosen, ::, ::]}
+            \STATE{LabelsChosen := Labels[IndicesChosen]}
+            \STATE{DataMatrix := Reshape Images and standardize Images}
+            \STATE{\textbf{Return:}DataMatrix, Mapping(Labels), LabelsChosen, NewLabels, NewAxisLabels}
+        \end{algorithmic}\caption{Algorithm 2: Subclass Classification}
+    \end{algorithm}
+    \begin{algorithm}\label{alg:3}
+        \begin{algorithmic}[1]
+            \STATE{\textbf{Input: } PredictedLabels, ActualLabels}
+            \STATE{M := Get Confusion Matrix using sklearn using PredictedLabels, ActualLabels}
+            \STATE{OverAllAccuracy := sum(diag(M))/sum(M)}
+            \STATE{FalsePositive := sum(M - diag(M), axis=0)/sum(M, axis=0)}
+            \STATE{FalseNegative := sum(M-diag(M), axis=1)/sum(M, axis=1)}
+            \STATE{Sort the FalsePositive and FalseNegative in ascending order, with the labels}
+            \STATE{Plot the Confusion matrix M, and plot FalsePositive and FalseNegative in bar plot.} 
+        \end{algorithmic}\caption{Algorithm 3: Extracting Statistics from the Confusion Matrix}
+    \end{algorithm}
+    \begin{algorithm}\label{alg:4}
+    \begin{algorithmic}[1]
+        \STATE{TrainX, TrainY = Using \hyperref[alg:1]{Algorithm 1} or\hyperref[alg:2]{Algorithm 2} to get the training, labels set. }
+        \STATE{TestX, TestY = Using \hyperref[alg:1]{Algorithm 1} or\hyperref[alg:2]{Algorithm 2} to get the testing, labels set. }
+        \STATE{DimReduce := Get a model by fitting TrainX, TrainY data using the LDA or PCA in sklearn}
+        \STATE{EmbeddingsTrain := DimReduce.getEmbeddings(TrainX)}
+        \STATE{EmbeddingsTest := DimReduce.getEmbeddings(TestX)}
+        \STATE{Model := Initialize a Model using sklearn}
+        \STATE{Model := Train on EmbeddingsTrain}
+        \STATE{PredictedLabelsTrain = Model.predict(TrainEmbeddings)}
+        \STATE{PredictedLabelsTest = Model.predict(TestEmbeddings)}
+        \end{algorithmic}\caption{Algorithm 4: Training Models}
+    \end{algorithm}
 
 \section{Computational Results}
     
