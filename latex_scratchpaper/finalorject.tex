@@ -104,11 +104,11 @@
             m_i = \sum_{x_i\in C_i}^{}
                 x_i
         \end{equation*}
-        Notice that equation \hyperref{eqn:1}{Expression 1} is the key here, the solution to the optimization problem is Eigenvector of the maximal Eigenvalue for the matrix $S_{\text{within}}^{\dagger}S_{\text{between}}$, however, the solution is not unique, all Eigenvector can be projected onto, and this is the subspace of embeddings for the LDA. 
+        Notice that equation \hyperref[eqn:1]{Expression 1} is the key here, the solution to the optimization problem is Eigenvector of the maximal Eigenvalue for the matrix $S_{\text{within}}^{\dagger}S_{\text{between}}$, however, the solution is not unique, all Eigenvector can be projected onto, and this is the subspace of embeddings for the LDA. 
         \par
-        However, do notice that taking the inverse of the matrix to be full rank, and LDA can only project the feature space down to $\min(k, n) - 1$ where $k$ is the number of classes and $n$ is the total number of the samples. 
+        Notice that taking the inverse of the matrix to be full rank, and LDA can only project the feature space down to $\min(k, n) - 1$ where $k$ is the number of classes and $n$ is the total number of the samples. 
         \par
-        However, the drawback for includes the fact that it requires the classes of the labels to have Gaussian Distributions of equal variances across all classes, in addition, it cannot separate non-linear distributions. % CITATION FOR THE LDA?????? 
+        However, the drawback for includes the fact that it requires the classes of the labels to have Gaussian Distributions of the same covariance matrix for each of the class, in addition, it cannot separate non-linear distributions. % CITATION FOR THE LDA?????? 
     \subsection*{PCA Dimensionality Reduction}
         \hspace{1.1em}
         PCA: Principal Component Analysis is an unsupervised learning technique and it's usually used as a dimensionality reduction technique. The Singular Value decomposition decompose any matrix $A$ into the product of 3 matrices: $U\Sigma V^T$, where $U, V^T$ are orthogonal matrices and $\Sigma$ is a diagonal matrix with Singular Values on the diagonal. 
@@ -128,12 +128,12 @@
         \par
         Principal Components is very useful for describing the data in an orthogonal subspace that is much lower than the original features space where the data is located int. The idea is so powerful that, Randomized SVD and Sparse SVD algorithm is implemented in the Sklearn Library. % CITATION 
         \par
-        However, compare to the Fisher's LDA embeddings, PCA is lossy once the truncated SVD is used. In addition, SVD is sensitive to noise and non-linear transformation of the original data, stretched and rotated images will introduce different principal components into the decomposition.
+        However, compare to the Fisher's LDA embeddings, PCA is lossy once the truncated SVD is used. In addition, SVD is sensitive to noise and unitary transformation of the original data (Preservation of Inner products). Rotated samples are very likely to create more singular values. Here we take the conservative approach of choosing 90\% or more energy for singular value by defult. 
     \subsection*{LDA + PCA for Dimensionality Reduction and Data Mining}
         \hspace{1.1em}
-        One of the major idea for training classical models and visualizing the data before training is the usage of combining both the PCA and LDA as a dimensionality reduction method to embed samples in a feature space that has a much lower dimension, speeding up classical algorithm such as the Support Vector Machine, Decision tree or Random Forest. 
+        Our idea is combine both PCA and LDA for dimensionality reduction. We use PCA and LDA to first visualize the separations of data using the lower dimensional embeddings to get some ideas about the structure of the data. Classical Machine Learning models such as the SVM and LDA have complexity that scale with the number of features, samples, and labels involved. Hence creating an embeddings in a lower dimension is extremely beneficial to the running time of the algorithms of these classical models. 
         \par
-        To get the best out of both algorithm PCA is performed on images partition by labels into equally sized classes and then LDA is performed with the PCA embeddings of the data, this is done using the training set. 
+        To get the best out of both algorithm PCA is performed on images partition by labels into equally sized classes and then LDA is performed on the PCA embeddings of the data, this is done using the training set. This is can be easily carried out using \textit{sklearn}
         \par
         When making prediction with a model, test set is projected onto the PCA components and then transformed into the LDA sub-space before feeding into the model for prediction.
 
@@ -200,14 +200,14 @@
             E(\text{Parent}) -
             \frac{N_{<k}}{N}E(F_1 < k) - \frac{N_{\ge k}}{N}E(F_1\ge k)
         \end{align*}
-        Where, the number $N_{<k}$ is the total number of samples in the left node of the parent node and $N_{\ge k}$ is the total number of samples in the right node. And the expression $E(F_1 < k)$ denotes the condition energy of the left node with all the sample where their feature $F_1$ satisfies the criterion: $<k$, it's the same story on the right side of the node. 
+        Where, the number $N_{<k}$ is the total number of samples in the left node of the parent node and $N_{\ge k}$ is the total number of samples in the right node. And the expression $E(F_1 < k)$ denotes the condition energy of the left node with all the sample where their feature $F_1$ satisfies the criterion: $F_1<k$, it's the same story on the right side of the node. 
         \par
         The simplicity of the decision tree gives it very large variance on the model, which means that, depending on which features are chosen to split and the parameters, many different types of tree can be configured. In general, the construction of the optimal tree is an NP-Hard problem, hence usually heuristics are used for constructing the tree given a training sample. % CITATION NEEDED. 
         \par
         However, the power of tree is manifested by a forest. The idea is to use bootstrap to train multiple tree and use the idea of bagging, where we either takes the average of the prediction from the group of trees trained from the data (Committee Method), or we weight their votes using their by penalizing trees that are more complex (Stacked Generalization). When the tree is a classifier, we simply take the votes to produce the predicted label. 
         % Statistical Learning 288
         \par
-        Nonetheless, one of the major practical advantage of the Random Forest Classifier over the SVM is the speed of training. The algorithm allows the tree to be train in concurrently, reducing the amount of time needed to train the model. 
+        Nonetheless, one of the major practical advantage of the Random Forest Classifier over the SVM is the speed of training, which comes from our observation. The algorithm allows the tree to be train concurrently, reducing the amount of time needed to train the Random Forest. 
     \subsection*{Logistic Regression, Softmax Regression}
         \hspace{1.1em}
         The logistic regression is a generalized linear model. It's derived from using the idea of a Maximal Likelihood Estimator and Linear Regression. However, under its most general form, it's presented as a softmax regression for multi-class classification tasks. 
