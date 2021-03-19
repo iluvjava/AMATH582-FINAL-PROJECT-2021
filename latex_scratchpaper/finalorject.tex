@@ -68,7 +68,7 @@
 
 \section{Theoretical Background}
     \hspace{1.1em}
-    In this section we will go through several of the popular machine learning model and discuss the mathematics behind these models. The presentation is made hope to be informative about the mathematical background of the models, and how the mathematical understanding of them lead to a better understanding of the structure and topology of the data.Our hypothesis is that, the performance Neuro Net works, or Convolutional Neuro Net work is as good as classical models if not better.  
+    In this section we will go through several of the popular machine learning models, dimensionality reduction techniques and measurements of performance metric. Major part of the discussion will centered around the mathematics and idea behind these subjects. The presentation is made with the hope to be informative about the mathematical background of the project, and how the mathematical understandings of lead to a better understanding of the structure and topology of the data via training on validating Machine Learning Models. Our hypothesis is that, the performance Neuro Net works, or Convolutional Neuro Net work is as good as classical models if not better. In addition, we hypothesize the existence of Irreducible errors among the EMNIST data set. 
     \subsection{Data Standardization}
         \hspace{1.1em}
         Data standardization is used for classical training method. This is necessary because models such as the SVM, LDA, PCA, and Decision Tree has biases depending on the size of the samples for each of the classes. Hence, all the data is Standardized by flattening the image of the data, and for all features of each sample is set to zero mean and unit variance. In addition, for training SVM and Decision tree, there are exact same number of samples presented for each of the labels. 
@@ -233,7 +233,22 @@
     \subsection*{Neuro Network}
 
     \subsection*{Performance Metric}
-        To measure the performance of the models, confusion matrix is used. The confusion matrices 
+        \hspace{1.1em}
+        To measure the performance of the models, confusion matrix is used. The confusion: $M_{i, j}$ the number of sample with label $i$ are being misclassified as label $j$. 
+        \par
+        The matrix $M$ exposes all the false positive and false negative value for each of the label. The false positive quantity (portion of relevant elements among all elements has been classified into this category) is given by: 
+        \begin{equation*}\tag{12}\label{eqn:12}
+           \text{FalsePositive} = \frac{M - \text{diag(M)}}{M\mathbb{J}}
+        \end{equation*} 
+        Where, the division is an element-wise operation. For each row of the confusion matrix, we take the sum on the rows and divides the sum of the non-diagonal elements by the sum of that entire row of the matrix. The notation $\mathbb{J}$ is the a vector consisting of all ones, having the same length as the height of the matrix M. 
+        \par
+        Similarly, the False Negative (The portion of elements that has been classified into this category and they are relevant) for each of the label is computed by: 
+        \begin{equation*}\tag{13}\label{eqn:13}
+            \text{FalseNegative} = \frac{M^T - \text{diag}(M^T)}{M^T\mathbb{J}}
+        \end{equation*}
+        In addition, the overall accuracy of the model is computed via the sum of the diagonal elements on the confusion matrix over the sum of all the elements that are in the matrix.
+        \par
+        The false positive and false negative rate are computed for each of the label and it serves as a sign of how much confusion is involved for each of the label for a given model. However, this is only used for models with a large amount of labels and under the case where there are limited number of labels, we made the choice to examine the confusion matrix manually. 
 
 
 \section{Algorithm Implementation and Development}
