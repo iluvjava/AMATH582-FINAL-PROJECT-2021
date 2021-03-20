@@ -53,8 +53,6 @@ def PCAPlusLDADemonstration():
     title("PCA + LDA on Test data set")
     show()
 
-    # PCAPlusLDADemonstration()
-
 
 def SVMTesting():
     DisplayLabels = "abcdefghijklmnopqrstuvwxyz"
@@ -182,15 +180,8 @@ def TestSplitbyLetterDigits():
 
 
 def TestSubClassClassification():
-
-    ## Classifying using random forest on approximate sub-classes.
-    # TrainX, TrainY = SplitbyClasses(classSize=2000, shuffle_data=True)
-    TrainX, TrainY = SplitbyLetterDigits(classSize=20000)
-    Organizer1 = LabelsOrganizer()
-    TrainY = Organizer1.getDataLabels(TrainY)
-    # TestX, TestY = SplitbyClasses(classSize = 100, shuffle_data=True, test_set=True)
-    TestX, TestY = SplitbyLetterDigits(classSize=3000,test_set=True)
-    TestY = Organizer1.getDataLabels(TestY)
+    TrainX, TrainY, _, _, AxTicks = SplitByFunc(THREE_CLS_AUX_FUN, classSize=10000)
+    TestX, TestY, _, _, _ = SplitByFunc(THREE_CLS_AUX_FUN, classSize=3000,test_set=True)
 
     DimRe = DimReduceHybrid(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
     TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
@@ -201,10 +192,43 @@ def TestSubClassClassification():
                                    n_jobs=-1,
                                    verbose=1,
                                    min_samples_leaf=0.01,
-                                   class_weight={0:1, 1: 3, 2: 3})
+                                   class_weight={0:3, 1: 1, 2: 1})
     Model.fit(TrainEmbeddings, TrainY)
     TestLabbelsPredicted = Model.predict(TestEmbeddings)
-    AxTicks = Organizer1.getDataTicks()
+    Conmat = ConfusionMatrix(TestY, TestLabbelsPredicted, axisTicks=AxTicks)
+    Conmat.visualize()
+    show()
+    Conmat.report()
+    show()
+
+
+def TestSplitByFunc():
+    Images, Labels, _, _, _ = SplitByFunc(TWO_CLS_AUX_FUN, classSize=5)
+    matplotlib.rcParams["figure.figsize"] = (5, 5)
+    for II, Label in np.ndenumerate(Labels):
+        matshow(reshape(Images[II, :], (28, 28)))
+        plt.title(f"Class {Labels[II]}")
+        show()
+    print("Test ends")
+
+
+def TestSubClassClassification2():  # Function Overshadow
+    matplotlib.rcParams["figure.figsize"] = (5, 5)
+    TrainX, TrainY, _, _, AxTicks = SplitByFunc(TWO_CLS_AUX_FUN, classSize=30000)
+    TestX, TestY, _, _, _ = SplitByFunc(TWO_CLS_AUX_FUN, classSize=10000, test_set=True)
+
+    DimRe = DimReduceHybrid(X=TrainX, y=TrainY)  # Use Train set to create LDA embeddings.
+    TrainEmbeddings = DimRe.getEmbeddings()  # Get Embeddings from the set trained LDA
+    TestEmbeddings = DimRe.getEmbeddings(TestX)  # Get the embeddings from the test set.
+
+    # Model = RandomForestClassifier(n_estimators=100, n_jobs=-1, max_leaf_nodes=)
+    Model = RandomForestClassifier(n_estimators=200,
+                                   n_jobs=-1,
+                                   verbose=1,
+                                   min_samples_leaf=0.01,
+                                   class_weight={0:3, 1: 1})
+    Model.fit(TrainEmbeddings, TrainY)
+    TestLabbelsPredicted = Model.predict(TestEmbeddings)
     Conmat = ConfusionMatrix(TestY, TestLabbelsPredicted, axisTicks=AxTicks)
     Conmat.visualize()
     show()
@@ -213,8 +237,8 @@ def TestSubClassClassification():
 
 
 def main():
-    TestSubClassClassification()
-    pass
+    TestSubClassClassification2()
+
 
 if __name__ == "__main__":
     import os
