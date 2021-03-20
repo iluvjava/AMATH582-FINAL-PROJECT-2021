@@ -1,10 +1,10 @@
 # Fdb version 3
-["biber finalorject"] 1616193890 "finalorject.bcf" "finalorject.bbl" "finalorject" 1616193896
-  "finalorject.bcf" 1616193896 99396 b4bd58129119c03c914ca8b31fcdd1b9 "pdflatex"
+["biber finalorject"] 0 "finalorject.bcf" "finalorject.bbl" "finalorject" 0
+  "finalorject.bcf" 0 -1 0 "pdflatex"
   (generated)
-  "finalorject.bbl"
   "finalorject.blg"
-["pdflatex"] 1616193894 "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.tex" "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.pdf" "finalorject" 1616193896
+  "finalorject.bbl"
+["pdflatex"] 1616200946 "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.tex" "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.pdf" "finalorject" 1616200946
   "C:/Users/victo/AppData/Local/MiKTeX/2.9/miktex/data/le/pdftex/pdflatex.fmt" 1600025645 3773315 a9f1a8316b2b44cc5b9c38efa414393e ""
   "C:/Users/victo/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map" 1616131897 79702 d20d453c87df744213d3a678b0e13af2 ""
   "C:/Users/victo/AppData/Local/Programs/MiKTeX 2.9/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1233955448 1004 54797486969f23fa377b128694d548df ""
@@ -129,19 +129,19 @@
   "C:/Users/victo/AppData/Local/Programs/MiKTeX 2.9/tex/latex/tools/calc.sty" 1573428444 10216 54c740cb9d999378b16df7e5c92c17a0 ""
   "C:/Users/victo/AppData/Local/Programs/MiKTeX 2.9/tex/latex/tools/xspace.sty" 1573428444 4546 4007c8ab6aedb07a7bba6acedadad416 ""
   "C:/Users/victo/AppData/Local/Programs/MiKTeX 2.9/tex/latex/url/url.sty" 1388494052 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.aux" 1616193896 4717 0087fde2f42cd260e395fe17cef9bbd4 ""
-  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.tex" 1616193889 23834 e8bf5f760224fd342b04c480c8f31167 ""
-  "finalorject.aux" 1616193896 4717 0087fde2f42cd260e395fe17cef9bbd4 "pdflatex"
-  "finalorject.bbl" 1616193892 486 f7f239c736cf01ac6ce7bd829f9b3c7b "biber finalorject"
-  "finalorject.out" 1616193896 597 6b55b93bbde4caee90aeb8b04bd78628 "pdflatex"
-  "finalorject.run.xml" 1616193896 2354 cdebe5176ec4c1736b4169dc5523f426 "pdflatex"
-  "finalorject.tex" 1616193889 23834 e8bf5f760224fd342b04c480c8f31167 ""
+  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.aux" 1616200946 9 a94a2480d3289e625eea47cd1b285758 ""
+  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.tex" 1616200942 24158 82c248cf7e91afd8742574e2a2be56b0 ""
+  "finalorject.aux" 0 -1 0 "pdflatex"
+  "finalorject.bbl" 0 -1 0 "biber finalorject"
+  "finalorject.out" 0 -1 0 "pdflatex"
+  "finalorject.run.xml" 0 -1 0 "pdflatex"
+  "finalorject.tex" 1616200942 24158 82c248cf7e91afd8742574e2a2be56b0 ""
   (generated)
-  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.log"
-  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.pdf"
   "finalorject.out"
-  "finalorject.run.xml"
-  "finalorject.log"
   "finalorject.aux"
   "finalorject.bcf"
+  "finalorject.run.xml"
   "finalorject.pdf"
+  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.pdf"
+  "finalorject.log"
+  "c:/Users/victo/source/repos/AMATH582-FINAL-PROJECT-2021/latex_scratchpaper/finalorject.log"

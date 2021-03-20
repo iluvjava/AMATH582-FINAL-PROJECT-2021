@@ -1,9 +1,0 @@
-[0] Config.pm:304> INFO - This is Biber 2.13
-[0] Config.pm:307> INFO - Logfile is 'finalorject.blg'
-[30] biber-MSWIN64:315> INFO - === 
-[55] Biber.pm:375> INFO - Reading 'finalorject.bcf'
-[166] Biber.pm:905> INFO - Found 0 citekeys in bib section 0
-[175] Utils.pm:300> WARN - The file 'finalorject.bcf' does not contain any citations!
-[184] bbl.pm:648> INFO - Writing 'finalorject.bbl' with encoding 'UTF-8'
-[184] bbl.pm:751> INFO - Output to finalorject.bbl
-[185] Biber.pm:110> INFO - WARNINGS: 1

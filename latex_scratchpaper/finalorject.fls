@@ -152,9 +152,6 @@ INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\epstopdf-pkg\ep
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\oberdiek\grfext.sty
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\oberdiek\grfext.sty
 OUTPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.bcf
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.bbl
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.bbl
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.bbl
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\graphics\color.sty
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\graphics\color.sty
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\graphics-cfg\color.cfg
@@ -165,14 +162,8 @@ INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\oberdiek\refcou
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\latex\oberdiek\refcount.sty
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.out
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.out
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.out
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.out
-OUTPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.pdf
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.out
-INPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.out
 OUTPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.out
+OUTPUT c:\Users\victo\source\repos\AMATH582-FINAL-PROJECT-2021\latex_scratchpaper\finalorject.pdf
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\fonts\tfm\public\cm\cmr17.tfm
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\fonts\tfm\public\cm\cmr12.tfm
 INPUT C:\Users\victo\AppData\Local\Programs\MiKTeX 2.9\fonts\tfm\public\cm\cmr8.tfm
