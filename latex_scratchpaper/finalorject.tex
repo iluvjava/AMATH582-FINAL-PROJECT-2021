@@ -1,0 +1,356 @@
+\documentclass{article}
+
+% If you're new to LaTeX, here's some short tutorials:
+% https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes
+% https://en.wikibooks.org/wiki/LaTeX/Basics
+
+% Formatting
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage[titletoc,title]{appendix}
+
+% Math
+% https://www.overleaf.com/learn/latex/Mathematical_expressions
+% https://en.wikibooks.org/wiki/LaTeX/Mathematics
+\usepackage{amsmath,amsfonts,amssymb,mathtools}
+
+% Images
+% https://www.overleaf.com/learn/latex/Inserting_Images
+% https://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions
+\usepackage{graphicx,float}
+
+% Tables
+% https://www.overleaf.com/learn/latex/Tables
+% https://en.wikibooks.org/wiki/LaTeX/Tables
+
+% Algorithms
+% https://www.overleaf.com/learn/latex/algorithms
+% https://en.wikibooks.org/wiki/LaTeX/Algorithms
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{algorithmic}
+
+% Code syntax highlighting
+% https://www.overleaf.com/learn/latex/Code_Highlighting_with_minted
+% \usepackage{minted}
+%\usemintedstyle{borland}
+
+% References
+% https://www.overleaf.com/learn/latex/Bibliography_management_in_LaTeX
+% https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management
+\usepackage{biblatex}
+\addbibresource{references.bib}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+% Title content
+\title{TITLE}
+\author{Hongda Li}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\begin{abstract}
+   ...
+\end{abstract}
+
+
+\section{Introduction and Overview}
+
+
+\section{Theoretical Background}
+    \hspace{1.1em}
+    In this section we will go through several of the popular machine learning models, dimensionality reduction techniques and measurements of performance metric. Major part of the discussion will centered around the mathematics and idea behind these subjects. The presentation is made with the hope to be informative about the mathematical background of the project, and how the mathematical understandings of lead to a better understanding of the structure and topology of the data via training on validating Machine Learning Models. Our hypothesis is that, the performance Neuro Net works, or Convolutional Neuro Net work is as good as classical models if not better. In addition, we hypothesize the existence of Irreducible errors among the EMNIST data set. 
+    \subsection{Data Standardization}
+        \hspace{1.1em}
+        Data standardization is used for classical training method. This is necessary because models such as the SVM, LDA, PCA, and Decision Tree has biases depending on the size of the samples for each of the classes. Hence, all the data is Standardized by flattening the image of the data, and for all features of each sample is set to zero mean and unit variance. In addition, for training SVM and Decision tree, there are exact same number of samples presented for each of the labels. 
+    \subsection{Dimensionality Reduction Using Fisher's LDA}
+        \hspace{1.1em}
+        Principal Component Analysis and Linear Discriminant Analysis are both used together to create low dimensional embeddings of the feature space. The original feature space for each of the images lie in a 784 dimension because each pixel of the image is considered as a feature and the image has size $28 \times 28$. 
+        \par
+        LDA is both a classifier and a dimensionality reduction technique, here we introduce Fisher's LDA, the idea is to look for a subspace (Not necessary orthogonal) such that, the embeddings of all the samples in the training set has maximal spread and minimal deviance among all the classes labels. One a high level, the problem is phrased as: 
+        \begin{equation*}\tag{1}\label{eqn:1}
+            \max_{\Vert x\Vert = 1} \left\lbrace
+                \frac{v^TS_{\text{Between}}v}{v^TS_{\text{Within}}v}
+            \right\rbrace
+        \end{equation*}
+        Where 2 of the matrices are defined as: 
+        \begin{align*}\tag{2}\label{eqn:2}
+            S_{\text{between}} = \sum_{i = 1}^{k}\left(
+                (u_i - \mu)(u_i - \mu)^T
+            \right) \quad 
+            \\
+            S_{\text{within}} =
+            \sum_{i=1}^{k}\left(
+                \sum_{x_i\in C_i}^{}
+                    (x_i - m_i)(x_i - m_i)^T
+            \right)
+        \end{align*}
+        Where quantity $\mu_i$ denotes the average of the class $C_i$ projected onto the chosen subspace $v$, and the quantity $m_i$ is the centroid of all the samples for the class $C_i$: 
+        \begin{equation*}\tag{3}\label{eqn:3}
+            \mu_i = \frac{1}{|C_i|}\sum_{x\in C_i}v^Tx_i
+            \quad\quad
+            \mu = \frac{1}{k}\sum_{i =1}^{k}\mu_i
+        \end{equation*}
+        \begin{equation*}\tag{4}\label{eqn:4}
+            m_i = \sum_{x_i\in C_i}^{}
+                x_i
+        \end{equation*}
+        Notice that equation \hyperref[eqn:1]{Expression 1} is the key here, the solution to the optimization problem is Eigenvector of the maximal Eigenvalue for the matrix $S_{\text{within}}^{\dagger}S_{\text{between}}$, however, the solution is not unique, all Eigenvector can be projected onto, and this is the subspace of embeddings for the LDA. 
+        \par
+        Notice that taking the inverse of the matrix to be full rank, and LDA can only project the feature space down to $\min(k, n) - 1$ where $k$ is the number of classes and $n$ is the total number of the samples. 
+        \par
+        However, the drawback for includes the fact that it requires the classes of the labels to have Gaussian Distributions of the same covariance matrix for each of the class, in addition, it cannot separate non-linear distributions. % CITATION FOR THE LDA?????? 
+    \subsection*{PCA Dimensionality Reduction}
+        \hspace{1.1em}
+        PCA: Principal Component Analysis is an unsupervised learning technique and it's usually used as a dimensionality reduction technique. The Singular Value decomposition decompose any matrix $A$ into the product of 3 matrices: $U\Sigma V^T$, where $U, V^T$ are orthogonal matrices and $\Sigma$ is a diagonal matrix with Singular Values on the diagonal. 
+        \par
+        In practice, matrix $A$ is the data matrix and the lower dimensional embedding are the $\Sigma V^T$ is the $A$ matrix is the data matrix and $U\Sigma$ if the $A$ matrix is a row matrix. 
+        \par
+        PCA is very different for one reason, it supports non-linearity and it's based on the idea of explaining variance in the data set. And nothing can demonstrate this idea better than the Low-rank Approximation theorem: 
+        \begin{equation*}\tag{5}\label{eqn:5}
+            U_k\Sigma_k V^T_k = \underset{\text{rank}(X)=k}{\text{argmin}}  \left\lbrace
+                \Vert X - A\Vert_F^2
+            \right\rbrace
+        \end{equation*}
+        \par
+        Where the, the $k$ truncated singular value decomposition of matrix $A$ is the solution to the $k$ rank approximation problem under the Frobenius Norm (And it measures the variance across differences between these 2 matrices). 
+        \par
+        This is incredibly useful in a sense that, if the variance of the data set can explained by some kind of low rank structure, then those structure will be review in the Principal Components, the $U$, or the $V$ matrix. 
+        \par
+        Principal Components is very useful for describing the data in an orthogonal subspace that is much lower than the original features space where the data is located int. The idea is so powerful that, Randomized SVD and Sparse SVD algorithm is implemented in the Sklearn Library. % CITATION 
+        \par
+        However, compare to the Fisher's LDA embeddings, PCA is lossy once the truncated SVD is used. In addition, SVD is sensitive to noise and unitary transformation of the original data (Preservation of Inner products). Rotated samples are very likely to create more singular values. Here we take the conservative approach of choosing 90\% or more energy for singular value by defult. 
+    \subsection*{LDA + PCA for Dimensionality Reduction and Data Mining}
+        \hspace{1.1em}
+        Our idea is combine both PCA and LDA for dimensionality reduction. We use PCA and LDA to first visualize the separations of data using the lower dimensional embeddings to get some ideas about the structure of the data. Classical Machine Learning models such as the SVM and LDA have complexity that scale with the number of features, samples, and labels involved. Hence creating an embeddings in a lower dimension is extremely beneficial to the running time of the algorithms of these classical models. 
+        \par
+        To get the best out of both algorithm PCA is performed on images partition by labels into equally sized classes and then LDA is performed on the PCA embeddings of the data, this is done using the training set. This is can be easily carried out using \textit{sklearn}
+        \par
+        When making prediction with a model, test set is projected onto the PCA components and then transformed into the LDA sub-space before feeding into the model for prediction.
+
+    \subsection*{SVM}
+        \hspace{1.1em}
+        The idea behind SVM: Support Vector Machine is simple and powerful. The problem is formulated as a Quadratic Optimization problem, summarized as the following: 
+        \begin{equation*}\tag{6}\label{eqn:6}
+            \min_{\beta, \beta_0} 
+            \left\lbrace
+            \frac{1}{2}
+                \left\Vert
+                    \beta
+                \right\Vert^2
+                + C \sum_{i = 1}^{N}\xi_i
+            \right\rbrace
+            \text{ s.t: } 
+            \begin{cases}
+                y_i(x_i^T\beta + \beta_0) \ge 1 - \xi_i \quad \forall i
+                \\
+                \xi_i \ge 0, \sum_{i}^{}\left(\xi_i\right) \le 1 - \xi_i \quad \forall i
+            \end{cases}
+        \end{equation*}
+        The quantity $\beta, \beta_0$ are parameters that define the separating hyperplane, and the slack variables $\xi_i$ are used as a penalty for placing the samples on the wrong side of the hyperplane. In practice, the problem is put into a dual primal format and then optimization with the KTT (Karush-Kuhn-Tucker conditions) are used. 
+        \par
+        And, buy consider the Fenchel Transform on the primal objective of the function (Which is itself), we obtain the Lagrangian of the system in the following form:
+        \begin{equation*}\tag{7}\label{eqn:7}
+            \mathcal{L}(\beta, \beta_0, \xi, \alpha) = \frac{1}{2}\Vert \beta\Vert^2
+            + 
+            C \sum_{i = 1}^{N}\xi_i - 
+            \sum_{i = 1}^{N}
+                \alpha_i [y_i(x_i^\beta + \beta_0) - (1 - \xi_i)]
+            - 
+            \sum_{i = 1}^{N}\mu_i \xi_i
+        \end{equation*}
+        And the constraints of the primal problem is relaxed using positivity assumptions on the variables: $\alpha_i, \mu_i, \xi_i \ge 0 \;\forall i$. 
+        \par
+        Much more theoretical Perspective of this part is highlighted in the book \textit{Elements of Statistical Learning}, where taking the derivative on the Lagrangian wrt the primal variable ($\beta_i, \xi_i$) will yield the results that: 
+        \begin{align*}\tag{8}\label{eqn:8}
+            \beta &= \sum_{i = 1}^{N}\alpha_i y_i x_i 
+            \\
+            0 &= \sum_{i = 1}^{N}\alpha_i y_i
+            \\
+            \alpha_i &= C - \mu_i \quad \forall i
+        \end{align*}
+        Often in practice, much noble algorithms are involved in solving the SVM optimal solutions and most of them are put into the dual form because it has a connection to the Kernel Function and inner products o all the features, and it give rise to the use of the Kernel function. 
+        \par
+        In practice, SVM is very effective under the task of binary classification under small sample but much worse for when then features space is in a very high dimension, and for multi-class classification where many labels are involved. This is the case because of the complexity of the algorithm both dimension and the number of samples used for training are very large, and the complexity is given by $\mathcal{O}(mn^2)$ where $n$ denotes the number of samples and $m$ denotes the number of features. 
+        \par
+        To overcome, we use the dimensionality technique introduced previous to improve the speed of the SVM. In addition, SVM serves as a great tools for looking into the structure of the classification and highlighting potential difficulties for other machine learning model, it serves as a ``Lower Bound'' for how well other machine learning model can perform. Finally, via experiments, it's a model that hardly over-fit and under-fit is indicative of potential irreducible errors on the data.
+
+    \subsection*{Decision Tree and Random Forest}
+    % This part cite the medium article about the information gain for the decision tree and decision tree training. 
+        \hspace{1.1em}
+        The idea behind decision tree is yet, another simple and powerful idea. There are 2 type of decision tree, regression tree where it seeks to approximate a function and the classification tree for classifying the samples with labels. 
+        \par
+        Under the most basic premise, each node of the of the tree, it split the samples into 2 sets trying to maximizes the information gain when splitting. The entropy of the tree can be measured by the expression: 
+        \begin{equation*}\tag{9}\label{eqn:9}
+            E(p) = \sum_{i = 1}^{k}-p_i\log(p_i)
+        \end{equation*}
+        Where the quantity $p_i$ denotes the portion of samples with label $i$ and $k$ denotes the total number of samples in the current node of the tree. Observe that the function reaches maximum when one of the labels saturated the node of the tree. 
+        \par
+        To make a branch on the tree, a separation criterion is made on one of the feature, and it seeks to maximizes the information gain, which can be summarized as one expressions: 
+        \begin{align*}\tag{10}\label{eqn:10}
+            E(\text{Parent}) -
+            \frac{N_{<k}}{N}E(F_1 < k) - \frac{N_{\ge k}}{N}E(F_1\ge k)
+        \end{align*}
+        Where, the number $N_{<k}$ is the total number of samples in the left node of the parent node and $N_{\ge k}$ is the total number of samples in the right node. And the expression $E(F_1 < k)$ denotes the condition energy of the left node with all the sample where their feature $F_1$ satisfies the criterion: $F_1<k$, it's the same story on the right side of the node. 
+        \par
+        The simplicity of the decision tree gives it very large variance on the model, which means that, depending on which features are chosen to split and the parameters, many different types of tree can be configured. In general, the construction of the optimal tree is an NP-Hard problem, hence usually heuristics are used for constructing the tree given a training sample. % CITATION NEEDED. 
+        \par
+        However, the power of tree is manifested by a forest. The idea is to use bootstrap to train multiple tree and use the idea of bagging, where we either takes the average of the prediction from the group of trees trained from the data (Committee Method), or we weight their votes using their by penalizing trees that are more complex (Stacked Generalization). When the tree is a classifier, we simply take the votes to produce the predicted label. 
+        % Statistical Learning 288
+        \par
+        Nonetheless, one of the major practical advantage of the Random Forest Classifier over the SVM is the speed of training, which comes from our observation. The algorithm allows the tree to be train concurrently, reducing the amount of time needed to train the Random Forest. 
+    \subsection*{Logistic Regression, Softmax Regression}
+        \hspace{1.1em}
+        The logistic regression is a generalized linear model. It's derived from using the idea of a Maximal Likelihood Estimator and Linear Regression. However, under its most general form, it's presented as a softmax regression for multi-class classification tasks. 
+        \par
+        Under the multi-class classification, we consider the generalization problem with $\{x_i, y_i\}$ where $x_i\in \mathbb{R}^n$ and $y_i \in \{1,2, \cdots , K\}$. 
+        \par
+        And the hypothesis of given an observation and a lits of parameters will be given in the form: 
+        \begin{equation*}\tag{11}\label{eqn:11}
+            h_\Theta(x) = 
+            \frac{1}{\sum_{j = 1}^{K}\exp(\theta_j^Tx)}
+            \begin{bmatrix}
+                \exp(\theta_1^Tx) \\ 
+                \exp(\theta_2^Tx) \\
+                \vdots
+                \\
+                \exp(\theta_K^Tx)
+            \end{bmatrix}
+        \end{equation*}
+        And the parameters are in the form of a matrix $\Theta$ where $\theta_i$ are the columns of the matrix and the matrix will be $x\times K$. 
+        \par
+        In practice, we take the logarithm and linearize the MLE, and gradient descend are usually used to compute the optimal parameters. Due to the fact that the model itself is a generalize linear model, it inherits regularization options from linear regression, such as L1, L2 or elastic nets. 
+        
+    \subsection*{Neuro Network}
+
+    \subsection*{Performance Metric}
+        \hspace{1.1em}
+        To measure the performance of the models, confusion matrix is used. The confusion: $M_{i, j}$ the number of sample with label $i$ are being misclassified as label $j$. 
+        \par
+        The matrix $M$ exposes all the false positive and false negative value for each of the label. The false positive quantity (portion of relevant elements among all elements has been classified into this category) is given by: 
+        \begin{equation*}\tag{12}\label{eqn:12}
+           \text{FalsePositive} = \frac{M - \text{diag(M)}}{M\mathbb{J}}
+        \end{equation*} 
+        Where, the division is an element-wise operation. For each row of the confusion matrix, we take the sum on the rows and divides the sum of the non-diagonal elements by the sum of that entire row of the matrix. The notation $\mathbb{J}$ is the a vector consisting of all ones, having the same length as the height of the matrix M. 
+        \par
+        Similarly, the False Negative (The portion of elements that has been classified into this category and they are relevant) for each of the label is computed by: 
+        \begin{equation*}\tag{13}\label{eqn:13}
+            \text{FalseNegative} = \frac{M^T - \text{diag}(M^T)}{M^T\mathbb{J}}
+        \end{equation*}
+        In addition, the overall accuracy of the model is computed via the sum of the diagonal elements on the confusion matrix over the sum of all the elements that are in the matrix.
+        \par
+        The false positive and false negative rate are computed for each of the label and it serves as a sign of how much confusion is involved for each of the label for a given model. However, this is only used for models with a large amount of labels and under the case where there are limited number of labels, we made the choice to examine the confusion matrix manually. 
+
+
+\section{Algorithm Implementation and Development}
+    \section{Scratch Paper Works for Overleaf}
+    \begin{algorithm}\label{alg:1}
+        \begin{algorithmic}[1]
+            \STATE{\textbf{Input:} ClassSize, TestSet, Classes, Shuffle(Optional)}
+            \STATE{Images, Labels = EMNIST Test set if TestSet else EMNIST Training set}
+            \STATE{\textbf{Initialize: } SelectedIndices}
+
+            \FOR{L in Classes}
+            {
+                \STATE{Indices = np.where(Labels==L)}
+                \STATE{Reshape Indices into a 1-D numpy array}
+                \IF{Shuffle}
+                {
+                    \STATE{Shuffle Indices}
+                }
+                \ENDIF
+                \STATE{Indices = Indices[min(Indices.size, ClassSize)]}
+                \STATE{SelectedIndices.append(Indices)}
+            }\ENDFOR
+            \STATE{RowDataMatrix := Images[Indices, ::, ::]}
+            \STATE{RowDataMatrix := RowDataMatrix as type np.floats}
+            \STATE{Labels := Labels[Indices]}
+            \STATE{RowDataMatrix := RowDataMatrix/255}
+            \STATE{RowDataMatrix := RowDataMatrix - mean(RowDataMatrix, axis=0)}
+            \STATE{\textbf{Return:} RowDataMatrix, Labels}
+        \end{algorithmic}\caption{Algorithm 1: Splitting by Classes and Data Standardization}
+    \end{algorithm}
+    \begin{algorithm}\label{alg:2}
+        \begin{algorithmic}[1]
+            \STATE{\textbf{Input: } AuxFunc, TestSet, ClassSize}
+            \STATE{Mapping, NewAxisLabels, NewLabels}
+            \STATE{Images, Labels := Images and labels from the EMNIST test set if 
+            TestSet else from EMNIST Training Set}
+            \STATE{TransFormedLabels = np.vectorize(Mapping)(Labels)}
+            \STATE{\textbf{Initialize: }IndicesChosen}
+            \FOR{II in NewLabels}
+            {
+                \STATE{Idx = np.where(TransformedLabels = II)}
+                \STATE{Reshaoe Idx so it's 1-d Numpy array}
+                \STATE{Shuffle Idx}
+                \STATE{Idx := Idx[:min(idx.size, classsize)]}
+                \STATE{Merge Idx into: IndicesChosen}
+            }\ENDFOR
+            \STATE{Images := Images[IndicesChosen, ::, ::]}
+            \STATE{LabelsChosen := Labels[IndicesChosen]}
+            \STATE{DataMatrix := Reshape Images and standardize Images}
+            \STATE{\textbf{Return:}DataMatrix, Mapping(Labels), LabelsChosen, NewLabels, NewAxisLabels}
+        \end{algorithmic}\caption{Algorithm 2: Subclass Classification}
+    \end{algorithm}
+    \begin{algorithm}\label{alg:3}
+        \begin{algorithmic}[1]
+            \STATE{\textbf{Input: } PredictedLabels, ActualLabels}
+            \STATE{M := Get Confusion Matrix using sklearn using PredictedLabels, ActualLabels}
+            \STATE{OverAllAccuracy := sum(diag(M))/sum(M)}
+            \STATE{FalsePositive := sum(M - diag(M), axis=0)/sum(M, axis=0)}
+            \STATE{FalseNegative := sum(M-diag(M), axis=1)/sum(M, axis=1)}
+            \STATE{Sort the FalsePositive and FalseNegative in ascending order, with the labels}
+            \STATE{Plot the Confusion matrix M, and plot FalsePositive and FalseNegative in bar plot.} 
+        \end{algorithmic}\caption{Algorithm 3: Extracting Statistics from the Confusion Matrix}
+    \end{algorithm}
+    \begin{algorithm}\label{alg:4}
+    \begin{algorithmic}[1]
+        \STATE{TrainX, TrainY = Using \hyperref[alg:1]{Algorithm 1} or\hyperref[alg:2]{Algorithm 2} to get the training, labels set. }
+        \STATE{TestX, TestY = Using \hyperref[alg:1]{Algorithm 1} or\hyperref[alg:2]{Algorithm 2} to get the testing, labels set. }
+        \STATE{DimReduce := Get a model by fitting TrainX, TrainY data using the LDA or PCA in sklearn}
+        \STATE{EmbeddingsTrain := DimReduce.getEmbeddings(TrainX)}
+        \STATE{EmbeddingsTest := DimReduce.getEmbeddings(TestX)}
+        \STATE{Model := Initialize a Model using sklearn}
+        \STATE{Model := Train on EmbeddingsTrain}
+        \STATE{PredictedLabelsTrain = Model.predict(TrainEmbeddings)}
+        \STATE{PredictedLabelsTest = Model.predict(TestEmbeddings)}
+        \end{algorithmic}\caption{Algorithm 4: Training Models}
+    \end{algorithm}
+
+\section{Computational Results}
+    \begin{figure}[h]
+        \centering
+        \includegraphics*[width=0.7\linewidth]{}
+        \caption{Figure 4: Projection of the PCA embeddings}
+        \label{fig: 4}
+    \end{figure}
+    \begin{figure}[h]
+    \centering
+    \includegraphics*[width=0.7\linewidth]{}
+    \caption{}
+    \label{}
+    \end{figure}
+
+\section{Summary and Conclusions}
+   
+% References
+\printbibliography
+
+% Appendices
+\begin{appendices}
+
+\section{MATLAB Functions}
+
+    
+\end{appendices}
+
+\end{document}
