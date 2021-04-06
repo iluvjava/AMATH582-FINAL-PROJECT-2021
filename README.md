@@ -12,4 +12,4 @@ This is a repo dedicated to AMATH 582 (Computational Method for Data Analysis) W
 
 ### **Python Environment**
 
-* [Conda Config](ml_optimization)
+* [Conda Config](./ml_optimization.yml)
